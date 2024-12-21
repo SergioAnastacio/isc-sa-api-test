@@ -3,10 +3,10 @@ name: Terraform and Ansible Pipeline
 on:
   push:
     branches:
-      - main
+      - develop_main
   pull_request:
     branches:
-      - main
+      - develop_main
 
 jobs:
   terraform:
