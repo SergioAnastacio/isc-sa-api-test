@@ -1,0 +1,84 @@
+name: Terraform and Ansible Pipeline
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+
+    steps:
+      
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v2
+        with:
+          terraform_version: 1.0.0
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Terraform Init
+        run: terraform init
+
+      - name: Terraform Apply(Refresh Only)
+        id: apply
+        run: terraform apply -auto-approve
+
+      - name: Debug Terraform Output
+        run: terraform output
+
+      - name: Create Ansible Inventory File
+        id: inventory
+        run: |
+          instance_ip=$(cat instance_ip.txt)
+          echo "api ansible_host=${instance_ip} ansible_python_interpreter=/usr/bin/python3.12 ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_connection=ssh ansible_port=22 ansible_user=ubuntu ansible_ssh_private_key_file=private_key.pem" >> inventory.ini
+
+      - name: Upload Ansible inventory to S3
+        run: |
+          aws s3 cp inventory.ini s3://anastacio/inventory.ini
+
+  ansible:
+    runs-on: ubuntu-latest
+    needs: terraform
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v3
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v2
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: us-west-1
+
+      - name: Download instance IP from S3
+        run: |
+          aws s3 cp s3://anastacio/inventory.ini inventory.ini
+
+      - name: Install Ansible
+        run: sudo apt-get update && sudo apt-get install -y ansible
+
+      - name: Decode and use private key from secrets
+        run: |
+          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" | base64 --decode > private_key.pem
+          chmod 600 private_key.pem
+
+      - name: Verify inventory file
+        run: cat inventory.ini
+      
+      - name: Run Ansible Playbook 
+        run: |
+          ansible-playbook -i inventory.ini playbook.yml 
