@@ -3,7 +3,7 @@ on:
   workflow_dispatch:
     
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
