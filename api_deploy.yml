@@ -11,7 +11,8 @@
 
     - name: delete all images
       docker_image:
-        name: ghcr.io/sa-api-test/sa-api:latest
+        name: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
+
         state: absent
 
     - name: login to GitHub Container Registry
@@ -22,13 +23,15 @@
 
     - name: get docker image from github ghcr.io
       docker_image:
-        name: ghcr.io/sa-api-test/sa-api:latest
+        name: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
+
         source: pull
 
     - name: run docker container
       docker_container:
         name: api
-        image: ghcr.io/sa-api-test/sa-api:latest
+        image: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
+
         ports:
           - "80:80"
         state: started
