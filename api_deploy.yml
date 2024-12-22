@@ -15,7 +15,10 @@
         state: absent
 
     - name: login to GitHub Container Registry
-      shell: echo $GITHUB_TOKEN | docker login ghcr.io -u SergioAnastacio --password-stdin
+      docker_login:
+        registry_url: ghcr.io
+        username: SergioAnastacio
+        password: "{{ lookup('env', 'GITHUB_TOKEN') }}"
 
     - name: get docker image from github ghcr.io
       docker_image:
