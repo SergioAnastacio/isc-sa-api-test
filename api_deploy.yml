@@ -4,22 +4,24 @@
   become: yes
 
   tasks:
-    - name: stop all conteiners
+    - name: stop all containers
       docker_container:
         name: api
         state: absent
+
     - name: delete all images
       docker_image:
         name: ghcr.io/sa-api-test/sa-api:latest
         state: absent
-    
+
     - name: login to GitHub Container Registry
-      shell: echo ${{ secrets.GITHUB_TOKEN }} | docker login ghcr.io -u SergioAnastacio --password-stdin
+      shell: echo $GITHUB_TOKEN | docker login ghcr.io -u SergioAnastacio --password-stdin
 
     - name: get docker image from github ghcr.io
       docker_image:
         name: ghcr.io/sa-api-test/sa-api:latest
         source: pull
+
     - name: run docker container
       docker_container:
         name: api
@@ -27,9 +29,10 @@
         ports:
           - "80:80"
         state: started
+
     - name: check if container is running
       shell: docker ps
       register: result
+
     - debug:
         var: result.stdout
-        
