@@ -10,16 +10,16 @@
         state: absent
     - name: delete all images
       docker_image:
-        name: ghcr.io/sa-api-test/sa-api:2b5e308babc76c1af6f139684fc8216c910e4270
+        name: ghcr.io/sa-api-test/sa-api:latest
         state: absent
     - name: get docker image from github ghcr.io
       docker_image:
-        name: ghcr.io/sa-api-test/sa-api:2b5e308babc76c1af6f139684fc8216c910e4270
+        name: ghcr.io/sa-api-test/sa-api:latest
         source: pull
     - name: run docker container
       docker_container:
         name: api
-        image: ghcr.io/sa-api-test/sa-api:2b5e308babc76c1af6f139684fc8216c910e4270
+        image: ghcr.io/sa-api-test/sa-api:latest
         ports:
           - "80:80"
         state: started
