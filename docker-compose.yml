@@ -1,10 +1,11 @@
-version: '3.8'
-
 services:
   app:
-    image: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
-    ports:
-      - "80:80"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: app
+    restart: unless-stopped
+    tty: true
     environment:
       - APP_ENV=production
       - APP_DEBUG=false
@@ -15,14 +16,46 @@ services:
       - DB_USERNAME=${DB_USERNAME}
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
-      - REDIS_PASSWORD=null
       - REDIS_PORT=6379
     volumes:
       - .:/var/www/html
     depends_on:
       - redis
+    networks:
+      - app-network
+
+  webserver:
+    image: nginx:alpine
+    container_name: webserver
+    restart: unless-stopped
+    tty: true
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - .:/var/www/html
+      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
+    networks:
+      - app-network
 
   redis:
     image: redis:alpine
+    container_name: redis
+    restart: always
     ports:
       - "6379:6379"
+    volumes:
+      - redis-data:/data
+    environment:
+      - ALLOW_EMPTY_PASSWORD=yes
+      - REDIS_DISABLE_COMMANDS=FLUSHDB,FLUSHALL,CONFIG,MODULE,DEBUG,SHUTDOWN
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  redis-data:
+    driver: local
