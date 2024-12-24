@@ -25,7 +25,7 @@ resource "aws_internet_gateway" "anasty_gateway" {
 resource "aws_subnet" "anasty_subnet_a" {
   vpc_id            = aws_vpc.anasty_vpc.id
   cidr_block        = "172.30.0.0/24"
-  availability_zone = "us-west-1a"
+  availability_zone = "us-west-1b"
 }
 
 resource "aws_subnet" "anasty_subnet_b" {
@@ -52,6 +52,33 @@ resource "aws_route_table_association" "anasty_table_association_a" {
 resource "aws_route_table_association" "anasty_table_association_b" {
   subnet_id      = aws_subnet.anasty_subnet_b.id
   route_table_id = aws_route_table.anasty_route_table.id
+}
+
+resource "aws_security_group" "anasty_security_group" {
+  name        = "anasty-security-group"
+  description = "Allow SSH and HTTP traffic"
+  vpc_id      = aws_vpc.anasty_vpc.id
+
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 resource "aws_instance" "back_anasty" {
