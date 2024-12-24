@@ -4,26 +4,16 @@
   become: yes
 
   tasks:
-
-    - name: stop docker compose
-      shell: docker-compose -f /home/ubuntu/docker-compose.yml down
     - name: stop all containers
-      shell: docker stop $(docker ps -a -q)
-    - name: remove all containers
-      shell: docker rm $(docker ps -a -q)
-    - name: remove all images
-      shell: docker rmi $(docker images -q)
-    - name : remove all volumes
-      shell: docker volume rm $(docker volume ls -q)
-    - name: remove all networks
-      shell: docker network rm $(docker network ls -q)
-    - name: remove all images
-      shell: docker rmi $(docker images -q)
-    - name: remove existing docker-compose.yml if it exists
-      file:
-        path: /home/ubuntu/docker-compose.yml
+      docker_container:
+        name: api
         state: absent
 
+    - name: delete all images
+      docker_image:
+        name: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
+        state: absent
+    
     - name: copy docker-compose.yml to EC2
       copy:
         src: ./docker-compose.yml
@@ -35,14 +25,17 @@
         username: SergioAnastacio
         password: "{{ lookup('env', 'GITHUB_TOKEN') }}"
 
-    - name: run docker-compose
+    - name: run docker-compose down
+      shell: docker-compose -f /home/ubuntu/docker-compose.yml down
+
+    - name: run docker-compose up --build -d
       shell: |
         export DB_HOST={{ lookup('env', 'DB_HOST') }}
         export DB_PORT={{ lookup('env', 'DB_PORT') }}
         export DB_DATABASE={{ lookup('env', 'DB_DATABASE') }}
         export DB_USERNAME={{ lookup('env', 'DB_USERNAME') }}
         export DB_PASSWORD={{ lookup('env', 'DB_PASSWORD') }}
-        docker-compose -f /home/ubuntu/docker-compose.yml up -d
+        docker-compose -f /home/ubuntu/docker-compose.yml up --build -d
 
     - name: check if containers are running
       shell: docker ps
