@@ -4,14 +4,24 @@
   become: yes
 
   tasks:
-    - name: stop all containers
-      docker_container:
-        name: api
-        state: absent
 
-    - name: delete all images
-      docker_image:
-        name: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
+    - name: stop docker compose
+      shell: docker-compose -f /home/ubuntu/docker-compose.yml down
+    - name: stop all containers
+      shell: docker stop $(docker ps -a -q)
+    - name: remove all containers
+      shell: docker rm $(docker ps -a -q)
+    - name: remove all images
+      shell: docker rmi $(docker images -q)
+    - name : remove all volumes
+      shell: docker volume rm $(docker volume ls -q)
+    - name: remove all networks
+      shell: docker network rm $(docker network ls -q)
+    - name: remove all images
+      shell: docker rmi $(docker images -q)
+    - name: remove existing docker-compose.yml if it exists
+      file:
+        path: /home/ubuntu/docker-compose.yml
         state: absent
 
     - name: copy docker-compose.yml to EC2

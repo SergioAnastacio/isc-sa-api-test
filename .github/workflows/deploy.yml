@@ -30,9 +30,6 @@ jobs:
           echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" | base64 --decode > private_key.pem
           chmod 600 private_key.pem
 
-      - name: Verify inventory file
-        run: cat inventory.ini
-
       - name: Run Ansible Playbook
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
