@@ -19,8 +19,12 @@
       shell: docker-compose -f /home/ubuntu/docker-compose.yml down
 
     
-    - name: remove all images
-      shell: docker rmi -f $(docker images -q)
+    - name: remove all containers
+      shell: |
+        containers=$(docker ps -a -q)
+        if [ -n "$containers" ]; then
+          docker rm -f $containers
+        fi
 
     - name: run docker-compose up --build -d
       shell: |
