@@ -1,8 +1,6 @@
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghr.io/sergioanastacio/sa-api:latest
     container_name: app
     restart: unless-stopped
     tty: true
@@ -17,24 +15,19 @@ services:
       - DB_PASSWORD=${DB_PASSWORD}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-    volumes:
-      - .:/var/www/html
     depends_on:
       - redis
     networks:
       - app-network
 
   webserver:
-    image: nginx:alpine
+    image: ghr.io/sergioanastacio/sa-api-nginx:latest
     container_name: webserver
     restart: unless-stopped
     tty: true
     ports:
       - "80:80"
       - "443:443"
-    volumes:
-      - .:/var/www/html
-      - ./docker/nginx/conf.d/:/etc/nginx/conf.d/
     networks:
       - app-network
 
