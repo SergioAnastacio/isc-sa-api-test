@@ -14,6 +14,8 @@ provider "aws" {
 resource "aws_vpc" "anasty_vpc" {
   cidr_block = "172.30.0.0/16"
   assign_generated_ipv6_cidr_block = true
+  enable_dns_support = true
+  enable_dns_hostnames = true
 }
 
 resource "aws_internet_gateway" "anasty_gateway" {
