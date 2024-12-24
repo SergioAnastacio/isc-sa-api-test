@@ -106,12 +106,12 @@ resource "local_file" "instance_ip_file" {
 resource "aws_db_instance" "anasty_db" {
   allocated_storage    = 20
   engine               = "mysql"
-  engine_version       = "8.0"
-  instance_class       = "db.t2.micro"
+  engine_version       = "8.0.39"
+  instance_class       = "db.t4g.micro"
   db_name              = "digidb"
   username             = var.db_username
   password             = var.db_password
-  parameter_group_name = "default.mysql8.0"
+  parameter_group_name = "default.mysql8.0.39"
   skip_final_snapshot  = true
   publicly_accessible  = true
   vpc_security_group_ids = [aws_security_group.anasty_db_sg.id]
