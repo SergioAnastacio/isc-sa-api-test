@@ -12,8 +12,12 @@
     - name: delete all images
       docker_image:
         name: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
-
         state: absent
+
+    - name: copy docker-compose.yml to EC2
+      copy:
+        src: ./docker-compose.yml
+        dest: /home/ubuntu/docker-compose.yml
 
     - name: login to GitHub Container Registry
       docker_login:
@@ -21,22 +25,16 @@
         username: SergioAnastacio
         password: "{{ lookup('env', 'GITHUB_TOKEN') }}"
 
-    - name: get docker image from github ghcr.io
-      docker_image:
-        name: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
+    - name: run docker-compose
+      shell: |
+        export DB_HOST={{ lookup('env', 'DB_HOST') }}
+        export DB_PORT={{ lookup('env', 'DB_PORT') }}
+        export DB_DATABASE={{ lookup('env', 'DB_DATABASE') }}
+        export DB_USERNAME={{ lookup('env', 'DB_USERNAME') }}
+        export DB_PASSWORD={{ lookup('env', 'DB_PASSWORD') }}
+        docker-compose -f /home/ubuntu/docker-compose.yml up -d
 
-        source: pull
-
-    - name: run docker container
-      docker_container:
-        name: api
-        image: ghcr.io/sergioanastacio/sa-api-test/sa-api:latest
-
-        ports:
-          - "80:80"
-        state: started
-
-    - name: check if container is running
+    - name: check if containers are running
       shell: docker ps
       register: result
 

@@ -105,3 +105,48 @@ resource "local_file" "instance_ip_file" {
   content  = aws_eip.back_anasty_eip.public_ip
   filename = "${path.module}/instance_ip.txt"
 }
+
+
+resource "aws_db_instance" "anasty_db" {
+  allocated_storage    = 20
+  engine               = "mysql"
+  engine_version       = "8.0"
+  instance_class       = "db.t2.micro"
+  db_name              = "digidb"
+  username             = var.db_username
+  password             = var.db_password
+  parameter_group_name = "default.mysql8.0"
+  skip_final_snapshot  = true
+  publicly_accessible  = true
+  vpc_security_group_ids = [aws_security_group.anasty_db_sg.id]
+  db_subnet_group_name = aws_db_subnet_group.anasty_db_subnet_group.name
+}
+
+resource "aws_db_subnet_group" "anasty_db_subnet_group" {
+  name       = "anasty-db-subnet-group"
+  subnet_ids = [aws_subnet.anasty_subnet.id, aws_subnet.anasty_subnet_ipv6.id]
+}
+
+resource "aws_security_group" "anasty_db_sg" {
+  name        = "anasty-db-sg"
+  description = "Allow MySQL traffic"
+  vpc_id      = aws_vpc.anasty_vpc.id
+
+  ingress {
+    from_port   = 3306
+    to_port     = 3306
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+output "db_endpoint" {
+  value = aws_db_instance.anasty_db.endpoint
+}

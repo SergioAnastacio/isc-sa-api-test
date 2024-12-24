@@ -1,4 +1,5 @@
 name: Deploy Infrastructure
+
 on:
   repository_dispatch:
     types: [deploy]
@@ -18,23 +19,29 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: us-west-1
 
-      - name: Download instance IP from S3
-        run: |
-          aws s3 cp s3://anastacio/inventory.ini inventory.ini
+      - name: Set up Terraform
+        uses: hashicorp/setup-terraform@v1
 
-      - name: Install Ansible
-        run: sudo apt-get update && sudo apt-get install -y ansible
+      - name: Initialize Terraform
+        run: terraform init
 
-      - name: Decode and use private key from secrets
-        run: |
-          echo "${{ secrets.ANSIBLE_PRIVATE_KEY }}" | base64 --decode > private_key.pem
-          chmod 600 private_key.pem
+      - name: Apply Terraform configuration
+        env:
+          TF_VAR_db_username: ${{ secrets.DB_USERNAME }}
+          TF_VAR_db_password: ${{ secrets.DB_PASSWORD }}
+        run: terraform apply -auto-approve
 
-      - name: Verify inventory file
-        run: cat inventory.ini
+      - name: Get DB Endpoint
+        id: db_endpoint
+        run: echo "::set-output name=db_endpoint::$(terraform output -raw db_endpoint)"
 
       - name: Run Ansible Playbook
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          DB_HOST: ${{ steps.db_endpoint.outputs.db_endpoint }}
+          DB_PORT: 3306
+          DB_DATABASE: digidb
+          DB_USERNAME: ${{ secrets.DB_USERNAME }}
+          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           ansible-playbook -i inventory.ini api_deploy.yml

@@ -1,4 +1,7 @@
 [![Terraform and Ansible Pipeline](https://github.com/SergioAnastacio/isc-sa-api-test/actions/workflows/main.yaml/badge.svg)](https://github.com/SergioAnastacio/isc-sa-api-test/actions/workflows/main.yaml)
+
+[![Deploy Infrastructure](https://github.com/SergioAnastacio/isc-sa-api-test/actions/workflows/deploy.yml/badge.svg)](https://github.com/SergioAnastacio/isc-sa-api-test/actions/workflows/deploy.yml)
+
 # ISC sa-api-test
 
 ## Propósito del repositorio
