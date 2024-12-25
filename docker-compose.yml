@@ -21,7 +21,7 @@ services:
       - app-network
 
   webserver:
-    image: ghcr.io/sergioanastacio/sa-api-nginx:latest
+    image: ghcr.io/sergioanastacio/sa-api-test/sa-api-nginx:latest
     container_name: webserver
     restart: unless-stopped
     tty: true
