@@ -1,9 +1,6 @@
 services:
   web:
-    image: my-vue-app:latest
-    build:
-      context: .
-      dockerfile: dockerfile
+    image: ghcr.io/sergioanastacio/web-test/sa-web:latest
     ports:
       - "80:80"
     restart: always
