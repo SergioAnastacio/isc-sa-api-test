@@ -1,7 +1,7 @@
 name: Deploy web server
 on:
   repository_dispatch:
-    types: [deploy]
+    types: [webdeploy]
 
 jobs:
   deploy:
