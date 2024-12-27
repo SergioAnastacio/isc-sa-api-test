@@ -41,13 +41,16 @@ jobs:
 
       - name: Debug Terraform Output
         run: terraform output
-        
+
       - name: Create Ansible Inventory File
         id: inventory
         run: |
           api=$(cat api_instance_ip.txt)
           web=$(cat web_instance_ip.txt)
+
+          echo "[api]" > inventory.ini
           echo "api ansible_host=${api} ansible_python_interpreter=/usr/bin/python3.12 ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_connection=ssh ansible_port=22 ansible_user=ubuntu ansible_ssh_private_key_file=private_key.pem" >> inventory.ini
+          echo "[web]" >> inventory.ini
           echo "web ansible_host=${web} ansible_python_interpreter=/usr/bin/python3.12 ansible_ssh_common_args='-o StrictHostKeyChecking=no' ansible_connection=ssh ansible_port=22 ansible_user=ubuntu ansible_ssh_private_key_file=private_key.pem" >> inventory.ini
 
       - name: Upload Ansible inventory to S3

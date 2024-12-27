@@ -158,7 +158,13 @@ resource "aws_security_group" "web_server_sg" {
   name        = "web-server-sg"
   description = "Allow HTTP and HTTPS traffic"
   vpc_id      = aws_vpc.anasty_vpc.id
-
+  
+  ingress {
+    from_port   = 22
+    to_port     = 22
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   ingress {
     from_port   = 80
     to_port     = 80
