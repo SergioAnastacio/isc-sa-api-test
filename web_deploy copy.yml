@@ -6,7 +6,7 @@
   tasks:
     - name: copy docker-compose.yml to EC2
       copy:
-        src: ./docker-compose.yml
+        src: ./docker-compose-web.yml
         dest: /home/ubuntu/docker-compose.yml
 
     - name: login to GitHub Container Registry
@@ -28,11 +28,6 @@
 
     - name: run docker-compose up --build -d
       shell: |
-        export DB_HOST={{ lookup('env', 'DB_HOST') }}
-        export DB_PORT={{ lookup('env', 'DB_PORT') }}
-        export DB_DATABASE={{ lookup('env', 'DB_DATABASE') }}
-        export DB_USERNAME={{ lookup('env', 'DB_USERNAME') }}
-        export DB_PASSWORD={{ lookup('env', 'DB_PASSWORD') }}
         docker-compose -f /home/ubuntu/docker-compose.yml up --build -d
 
     - name: check if containers are running
