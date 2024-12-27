@@ -33,10 +33,5 @@ jobs:
       - name: Run Ansible Playbook
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          DB_HOST: ${{ secrets.DB_HOST }}
-          DB_PORT: ${{ secrets.DB_PORT }}
-          DB_DATABASE: ${{ secrets.DB_DATABASE }}
-          DB_USERNAME: ${{ secrets.DB_USERNAME }}
-          DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
         run: |
           ansible-playbook -i inventory.ini web_deploy.yml
