@@ -6,7 +6,7 @@
   tasks:
     - name: copy docker-compose.yml to EC2
       copy:
-        src: ./docker-compose-api.yml
+        src: ./docker-compose.yml
         dest: /home/ubuntu/docker-compose.yml
 
     - name: login to GitHub Container Registry

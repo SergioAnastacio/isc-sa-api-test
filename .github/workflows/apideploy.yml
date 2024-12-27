@@ -1,7 +1,7 @@
-name: Deploy Infrastructure
+name: Deploy api server
 on:
   repository_dispatch:
-    types: [deploy]
+    types: [apideploy]
 
 jobs:
   deploy:
