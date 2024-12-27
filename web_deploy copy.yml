@@ -1,6 +1,6 @@
 ---
 - name: deploy on EC2 instance
-  hosts: api
+  hosts: web
   become: yes
 
   tasks:
