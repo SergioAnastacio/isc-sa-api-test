@@ -1,6 +1,6 @@
 ---
 - name: Configure EC2 instance
-  hosts: api
+  hosts: [api, web]
   become: yes
 
   tasks:

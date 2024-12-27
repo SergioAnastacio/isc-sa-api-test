@@ -94,13 +94,8 @@ resource "aws_eip" "back_anasty_eip" {
   instance = aws_instance.back_anasty.id
 }
 
-output "instance_ip" {
+output "api_instance_ip" {
   value = aws_eip.back_anasty_eip.public_ip
-}
-
-resource "local_file" "instance_ip_file" {
-  content  = aws_eip.back_anasty_eip.public_ip
-  filename = "${path.module}/instance_ip.txt"
 }
 
 resource "aws_db_instance" "anasty_db" {
@@ -144,4 +139,58 @@ resource "aws_security_group" "anasty_db_sg" {
 
 output "db_endpoint" {
   value = aws_db_instance.anasty_db.endpoint
+}
+
+resource "aws_instance" "web_server" {
+  ami                    = "ami-0657605d763ac72a8" # Ubuntu 24.04 LTS
+  instance_type          = "t2.micro"
+  vpc_security_group_ids = [aws_security_group.web_server_sg.id]
+  key_name               = "masternode"
+  subnet_id              = aws_subnet.anasty_subnet_a.id
+  associate_public_ip_address = true
+}
+
+resource "aws_eip" "web_server_eip" {
+  instance = aws_instance.web_server.id
+}
+
+resource "aws_security_group" "web_server_sg" {
+  name        = "web-server-sg"
+  description = "Allow HTTP and HTTPS traffic"
+  vpc_id      = aws_vpc.anasty_vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+output "web_instance_ip" {
+  value = aws_eip.web_server_eip.public_ip
+}
+
+resource "local_file" "instance_api_ip_file" {
+  content  = aws_eip.back_anasty_eip.public_ip
+  filename = "${path.module}/api_instance_ip.txt"
+}
+
+resource "local_file" "instance_web_ip_file" {
+  content  = aws_eip.web_server_eip.public_ip
+  filename = "${path.module}/web_instance_ip.txt"
 }
